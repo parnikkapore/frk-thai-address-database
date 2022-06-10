@@ -94,6 +94,35 @@ describe('#search', function () {
     result = db.searchAddressByZipcode('')
     expect(result.length).to.equal(0)
   })
+
+  it('searchAddressByObject', function () {
+    // The basics
+
+    let result = db.searchAddressByObject({zipcode: 27120})
+    expect(result.length).to.equal(15)
+
+    result = db.searchAddressByObject({amphoe: 'อรัญประเทศ'})
+    expect(result.length).to.equal(13)
+
+    result = db.searchAddressByObject({amphoe: 'อรัญประเทศ'}, 8)
+    expect(result.length).to.equal(8)
+
+    // Combination of queries mean AND
+
+    result = db.searchAddressByObject({district: 'โคกสูง', province: 'ขอนแก่น'});
+    expect(result.length).to.equal(1)
+
+    result = db.searchAddressByObject({district: 'ทราย', province: 'กรุงเทพมหานคร'});
+    expect(result.length).to.equal(2)
+
+    // Degenerate cases
+
+    result = db.searchAddressByObject({});
+    expect(result.length).to.equal(0)
+
+    result = db.searchAddressByObject({district: ''});
+    expect(result.length).to.equal(0)
+  })
 })
 
 describe('Function splitAddress', function () {
