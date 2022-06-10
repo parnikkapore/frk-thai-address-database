@@ -70,24 +70,30 @@
 
   const db = preprocess(require('../database/db.json'))
 
-  const resolveResultbyField = (type, searchStr, maxResult) => {
-    searchStr = searchStr.toString().trim()
-    if (searchStr === '') {
-      return []
-    }
-    if (!maxResult) {
-      maxResult = 20
-    }
-    let possibles = []
+  function resolveResultbyObject (query, maxResult = 20) {
+    var possibilities = []
     try {
-      possibles = db.filter(item => {
-        let regex = new RegExp(searchStr, 'g')
-        return (item[type] || '').toString().match(regex)
+      possibilities = db.filter((item) => {
+        return !Object.entries(query).some(([type, _partial]) => {
+          const partial = _partial.toString().trim()
+          if (partial === '') {
+            return true
+          }
+          var partialRegex = new RegExp(partial, 'g')
+          return !(item[type] || '').toString().match(partialRegex)
+        })
       }).slice(0, maxResult)
     } catch (e) {
       return []
     }
-    return possibles
+
+    return possibilities
+  };
+
+  function resolveResultbyField (type, searchStr, maxResult = 20) {
+    const query = {}
+    query[type] = searchStr
+    return resolveResultbyObject(query, maxResult)
   }
 
   const searchAddressByDistrict = (searchStr, maxResult) => {
@@ -125,6 +131,7 @@
     return null
   }
 
+  exports.searchAddressByObject = resolveResultbyObject
   exports.searchAddressByDistrict = searchAddressByDistrict
   exports.searchAddressByAmphoe = searchAddressByAmphoe
   exports.searchAddressByProvince = searchAddressByProvince
@@ -135,6 +142,7 @@
     angular.module('thAddress', [])
     .config(function ($provide) {
       $provide.value('thad', {
+        searchAddressByObject: resolveResultbyObject,
         searchAddressByDistrict: searchAddressByDistrict,
         searchAddressByAmphoe: searchAddressByAmphoe,
         searchAddressByProvince: searchAddressByProvince,
