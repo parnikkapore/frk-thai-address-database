@@ -79,8 +79,9 @@
           if (partial === '') {
             return true
           }
-          var partialRegex = new RegExp(partial, 'g')
-          return !(item[type] || '').toString().match(partialRegex)
+          const partialLowercase = partial.toLowerCase()
+          const itemValueLowercase = (item[type] || '').toString().toLowerCase()
+          return !itemValueLowercase.includes(partialLowercase)
         })
       }).slice(0, maxResult)
     } catch (e) {
