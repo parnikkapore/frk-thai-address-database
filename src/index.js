@@ -71,10 +71,15 @@
   const db = preprocess(require('../database/db.json'))
 
   function resolveResultbyObject (query, maxResult = 20) {
+    const queryPairs = Object.entries(query)
+    if (queryPairs.length === 0) {
+      return []
+    }
+
     var possibilities = []
     try {
       possibilities = db.filter((item) => {
-        return !Object.entries(query).some(([type, _partial]) => {
+        return !queryPairs.some(([type, _partial]) => {
           const partial = _partial.toString().trim()
           if (partial === '') {
             return true
